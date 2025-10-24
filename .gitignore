@@ -14,3 +14,36 @@ Desktop.ini
 
 # Logs
 *.log
+# Qt build artifacts
+build*/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+Makefile*
+qmake.stash
+
+# Generated Qt files
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+
+# IDE files
+*.pro.user*
+*.qmlproject.user*
+*.qbs.user*
+*.autosave
+.idea/
+.vscode/
+
+# Project-specific
+ITUe-QT-exercise/
+deployment/*.exe
+deployment/*.dll
+deployment/*.app
+
+# OS files
+.DS_Store
+Thumbs.db
