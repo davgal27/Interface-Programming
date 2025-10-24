@@ -39,7 +39,6 @@ qrc_*.cpp
 .vscode/
 
 # Project-specific
-ITUe-QT-exercise/
 deployment/*.exe
 deployment/*.dll
 deployment/*.app
