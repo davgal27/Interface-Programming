@@ -1,0 +1,143 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-2">
+  <title> ITU ajax </title>
+  
+  <style type="text/css">
+  div, input { margin: 10px; }
+  </style>
+</head>
+<body>
+
+<div id="chatArea" style="height: 300px; border: solid #aaa 1px; overflow:auto;"></div> 
+
+<form onsubmit="return uploadData()">
+  <input type="text" id="newMessageString">
+  <input type="submit" value="send">
+</form>
+
+<div id="status" style="border: solid #aaa 1px; ">&nbsp;</div> 
+
+
+<script type="text/javascript">
+
+/***
+  * XMLHttpRequest object constructor (for compatibility with various browsers)
+  */
+function createXmlHttpRequestObject() 
+{
+    var request;
+  
+    try
+    {
+        request = new XMLHttpRequest(); // should work on all browsers except IE6 or older
+    } 
+    catch (e) 
+    { 
+        try 
+        {
+            request = new ActiveXObject("Microsoft.XMLHttp"); // browser is IE6 or older
+        }
+        catch (e) 
+        {
+            // ignore error
+        }
+    }
+  
+    if (!request) 
+    {
+        alert("Error creating the XMLHttpRequest object.");
+    } 
+    else 
+    {
+        return request;
+    }
+}
+
+/***
+  * Function to send a message to the chat. It sends a request with user specified data
+  * and updates the chat window after it receives a response from the server.
+  */
+function uploadData()
+{
+    document.getElementById("status").innerHTML = "uploadData()";
+
+    try 
+    {
+        var request = createXmlHttpRequestObject(); // stores XMLHttpRequestObject
+        var msg = document.getElementById("newMessageString").value;
+        //// Open (initialize) the request with correct METHOD and URL
+        request.open("POST", "SERVERNAME.COM", true);
+        //// Set the request header
+        request.setRequestHeader("Content-Type", "application/json");
+        //// Assign the callback (anonymous function) to handle the response
+        ////     If the response has been received (check the appropriate variables)
+        ////         Update the chat window
+        request.onreadystatechange = function() {
+            if (request.readyState === 4 && request.status === 200) {
+                downloadData();
+            }
+        }
+        //// Send the request with user data
+        request.send(JSON.stringify({message: msg}));
+    } 
+    catch (e) 
+    {
+        alert(e.toString());
+    }
+
+    return false; // to avoid default form submit behavior 
+}
+
+
+/***
+  * Function to update the chat window. It downloads newest messages from the server, 
+  * filters the old ones, and displays the rest to the user.
+  */
+function downloadData() 
+{
+    document.getElementById("status").innerHTML = "downloadData()";
+
+    //// Create a new request
+    //// Open (initialize) the request with correct METHOD and URL
+    //// Assign the callback (anonymous function) to handle the response
+    ////     If the response has been received (check the appropriate variables)
+    ////         Parse the response
+    ////         Loop through the messages
+    ////             If the message was not already displayed
+    ////                 Display the message to the user
+    ////                 Update the ID of the last displayed message
+    //// Send the request
+    var request = createXmlHttpRequestObject();
+    request.open("GET", "SERVERNAME.COM?lastId=" + lastMessageId, true);
+    request.onreadystatechange = function() {
+        if (request.readyState === 4 && request.status === 200) {
+            var messages = JSON.parse(request.responseText);
+            var chatArea = document.getElementById("chatArea");
+
+            messages.forEach(function(msg){
+                if(msg.id > lastMessageId){
+                    var div = document.createElement("div");
+                    div.textContent = msg.text;
+                    chatArea.appendChild(div);
+                    lastMessageId = msg.id;
+                    document.getElementById("status").textContent = "New message ID: " + msg.id;
+                }
+            });
+        };
+    };
+    request.send(null);
+
+}
+
+//// Create a global variable to store ID of the last displayed message
+var lastMessageId = 0;
+//// Call a function to update the chat after the page is loaded
+window.onload = function(){
+    downloadData();
+//// Call a function to periodically update the chat after 1 second
+    setInterval(downloadData, 1000);
+}
+
+</script>
+
+
+</body></html>
