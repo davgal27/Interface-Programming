@@ -63,21 +63,23 @@ function uploadData()
     try 
     {
         var request = createXmlHttpRequestObject(); // stores XMLHttpRequestObject
+        console.log("test 1");
         var msg = document.getElementById("newMessageString").value;
         //// Open (initialize) the request with correct METHOD and URL
-        request.open("POST", "SERVERNAME.COM", true);
+        request.open("POST", "http://butcluster.ddns.net/api.php", true);
+        console.log("test 2");
         //// Set the request header
-        request.setRequestHeader("Content-Type", "application/json");
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         //// Assign the callback (anonymous function) to handle the response
-        ////     If the response has been received (check the appropriate variables)
-        ////         Update the chat window
         request.onreadystatechange = function() {
+        ////If the response has been received (check the appropriate variables)
             if (request.readyState === 4 && request.status === 200) {
+        ////    Update the chat window
                 downloadData();
             }
         }
         //// Send the request with user data
-        request.send(JSON.stringify({message: msg}));
+        request.send("data=" + encodeURIComponent(msg));
     } 
     catch (e) 
     {
@@ -96,34 +98,33 @@ function downloadData()
 {
     document.getElementById("status").innerHTML = "downloadData()";
 
-    //// Create a new request
-    //// Open (initialize) the request with correct METHOD and URL
-    //// Assign the callback (anonymous function) to handle the response
-    ////     If the response has been received (check the appropriate variables)
-    ////         Parse the response
-    ////         Loop through the messages
-    ////             If the message was not already displayed
-    ////                 Display the message to the user
-    ////                 Update the ID of the last displayed message
-    //// Send the request
+    ////Create a new request
     var request = createXmlHttpRequestObject();
-    request.open("GET", "SERVERNAME.COM?lastId=" + lastMessageId, true);
+    ////Open (initialize) the request with correct METHOD and URL
+    request.open("GET", "http://butcluster.ddns.net/api.php?lastId=" + lastMessageId, true);
+    ////Assign the callback (anonymous function) to handle the response
     request.onreadystatechange = function() {
+    ////If the response has been received (check the appropriate variables)
         if (request.readyState === 4 && request.status === 200) {
+    ////    Parse the response
             var messages = JSON.parse(request.responseText);
             var chatArea = document.getElementById("chatArea");
-
+    ////    Loop through the messages
             messages.forEach(function(msg){
+    ////        If the message was not already displayed
                 if(msg.id > lastMessageId){
+    ////            Display the message to the user
                     var div = document.createElement("div");
-                    div.textContent = msg.text;
+                    div.innerHTML = msg.cnt;
                     chatArea.appendChild(div);
+    ////            Update the ID of the last displayed message
                     lastMessageId = msg.id;
                     document.getElementById("status").textContent = "New message ID: " + msg.id;
                 }
             });
         };
     };
+    //// Send the request
     request.send(null);
 
 }
@@ -134,7 +135,7 @@ var lastMessageId = 0;
 window.onload = function(){
     downloadData();
 //// Call a function to periodically update the chat after 1 second
-    setInterval(downloadData, 1000);
+    //setInterval(downloadData, 1000);
 }
 
 </script>
